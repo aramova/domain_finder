@@ -7,6 +7,9 @@ lessons_learned.md
 # Compiled application binary.
 domain_finder
 
+# Local database file.
+domains.db
+
 # IDE files
 .idea/
 *.swp
