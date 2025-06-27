@@ -1,10 +1,5 @@
 {
   "discord_bot_token": "YOUR_DISCORD_BOT_TOKEN",
   "discord_channel_id": "THE_CHANNEL_ID_TO_SEND_ALERTS_TO",
-  "check_interval_minutes": 60,
-  "domains_to_check": [
-    "google.com",
-    "github.com",
-    "anotherdomain.com"
-  ]
+  "check_interval_minutes": 60
 }
