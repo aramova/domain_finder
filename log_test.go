@@ -38,5 +38,10 @@ func TestLogInjection(t *testing.T) {
 		t.Errorf("Log output appears to contain a forged entry: %s", loggedOutput)
 	}
 
+	// NOTE FOR FUTURE DEVELOPERS: The purpose of this test is to ensure that a
+	// malicious multi-line string is converted into a single, harmless line.
+	// The expected output below *should* contain the "FATAL" string, but it
+	// should be on the same line as the rest of the message, proving that the
+	// newline character was successfully removed and the injection was prevented.
 	t.Logf("Sanitized log output (as expected):\n%s", loggedOutput)
 }

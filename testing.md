@@ -75,3 +75,17 @@ This file tests the parsing and comparison of WHOIS records.
 | --------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------- |
 | `TestParseWhois`            | Tests the parsing of a raw WHOIS text block.      | Parses a sample `google.com` record and verifies that the domain name, registrar, registrant, expiry date, and name servers are all extracted correctly. |
 | `TestCompareWhoisRecords`   | Tests the logic for comparing two `WHOIS` records. | - **No change**: Compares a record against itself, expecting no differences.<br>- **Expiry Date changed**: Compares two records where only the expiry date differs, expecting one specific change.<br>- **Registrant and Name Servers changed**: Compares two records with multiple changes, expecting two specific changes. |
+
+---
+
+## Security Testing
+
+A series of tests were added to proactively identify and prevent common security vulnerabilities.
+
+| Test Function               | File                | Description                                                                                                                                                                                                                                                                                                                                                     |
+| --------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TestSQLInjection`          | `database_test.go`  | Ensures that a maliciously crafted domain name (e.g., `'; DROP TABLE monitored_domains; --`) cannot be used to execute arbitrary SQL commands. The test passes if the input is saved as a literal string and the database schema remains unharmed.                                                                                                                   |
+| `TestIsValidDomain_ReDoS`   | `main_test.go`      | Checks for Regular Expression Denial of Service vulnerabilities. It passes a long, potentially problematic string to the domain validation regex and asserts that the function completes quickly (under 10ms), preventing the application from hanging on "evil" input.                                                                                             |
+| `TestLogInjection`          | `log_test.go`       | Verifies that user input with newline characters cannot be used to forge log entries. The test passes if a multi-line malicious string is sanitized into a single line in the final log output. **Note:** The successful test output will contain the malicious string (e.g., `[FATAL]...`), but it will be on a single, harmless line, proving the injection was blocked. |
+| `TestMarkdownInjection`     | `discord_test.go`   | Checks if user input containing markdown characters (like backticks) can break Discord message formatting. This test currently passes, indicating that the `discordgo` library provides automatic sanitization. It remains in the suite as a regression test.                                                                                             |
+
