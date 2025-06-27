@@ -1,0 +1,13 @@
+# Local configuration file. Contains secrets.
+config.json
+
+# Project-specific learnings. Not part of the core source code.
+lessons_learned.md
+
+# Compiled application binary.
+domain_finder
+
+# IDE files
+.idea/
+*.swp
+*.swo
