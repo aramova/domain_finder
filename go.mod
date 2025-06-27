@@ -1,8 +1,8 @@
 module domain_finder
 
-go 1.19
+go 1.21
 
-
+toolchain go1.24.2
 
 require (
 	github.com/bwmarrin/discordgo v0.29.0
