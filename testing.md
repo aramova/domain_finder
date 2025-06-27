@@ -10,6 +10,8 @@ This document provides a comprehensive overview of the unit tests conducted for 
 -   `main_test.go`
 -   `scheduler_test.go`
 -   `whois_test.go`
+-   `log_test.go`
+-   `security.go`
 
 ---
 
