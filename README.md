@@ -1,100 +1,119 @@
 # Domain Finder
 
-`domain_finder` is a Go-based bot that monitors a list of domain names for changes and upcoming expirations. It sends notifications to a Discord channel and allows for interactive acknowledgment of alerts.
+![Go Version](https://img.shields.io/badge/Go-1.19%2B-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Status](https://img.shields.io/badge/Status-Active-success)
 
-## Features
+**Domain Finder** is a robust, production-ready Discord bot written in Go. It autonomously monitors domain names for critical changes (WHOIS data) and upcoming expirations, alerting you directly in your Discord server. It features a persistent SQLite database, interactive commands, and a secure systemd service installer.
 
--   **WHOIS Monitoring:** Regularly performs WHOIS lookups on a list of domains.
--   **Change Detection:** Detects changes in key WHOIS fields (`Updated Date`, `Expiry Date`, `Registrant Name`, `Name Servers`).
--   **Expiration Alerts:** Sends warnings for domains expiring within 48 hours.
--   **High-Frequency Expiration Alerts:** Switches to a 1-minute check interval for any domain that is within 60 minutes of expiring.
--   **Detailed Change Notifications:** When a change is detected, the bot sends a message containing the full, structured WHOIS data of the new record.
--   **Interactive Alerts:** Acknowledge public alerts by reacting with a ✅ emoji.
--   **Personal DM Reminders:** Users can request to be DMed when a specific domain is about to expire. These can be silenced by replying `ack`.
--   **Persistent Storage:** Uses a local SQLite database (`domains.db`) to store all data.
--   **Secure by Default:** Includes an installer that creates a non-privileged system user and sets secure file permissions.
+## ✨ Key Features
 
-## Getting Started
+*   **🔍 Automated WHOIS Monitoring:** Periodically checks your domains against a configurable schedule.
+*   **🚨 Smart Alerts:**
+    *   **Change Detection:** Instantly notifies you of changes to `Updated Date`, `Expiry Date`, `Registrant`, or `Name Servers`.
+    *   **Expiration Warnings:** alerts 48 hours before expiration.
+    *   **High-Frequency Mode:** Automatically switches to 1-minute checks for domains expiring within 60 minutes.
+*   **💬 Interactive Discord Integration:**
+    *   **Public Alerts:** Post alerts to a specific channel.
+    *   **Acknowledge:** React with ✅ to acknowledge and silence active alerts.
+    *   **Personal Reminders:** Users can set private DM reminders for specific domains (`!remindme`).
+*   **💾 Persistent Storage:** All domain data, history, and user preferences are stored locally in a SQLite database (`domains.db`).
+*   **🛡️ Secure & Production-Ready:** Includes a `systemd` installer script that sets up a dedicated, non-privileged user and locks down file permissions.
 
-### 1. Prerequisites
+## 🚀 Getting Started
 
--   Go (version 1.19 or newer is recommended)
--   A Discord Bot Token
+### Prerequisites
 
-### 2. Installation
+*   **Go 1.19+** installed on your system.
+*   A **Discord Bot Token** (see below).
 
-#### a) Create Your Discord Bot
+### Installation
 
-Before running the application, you need a Discord Bot Token.
-
-1.  **Go to the [Discord Developer Portal](https://discord.com/developers/applications).**
-2.  Create a **New Application**, then go to the **Bot** tab and **Add Bot**.
-3.  **Get the Bot Token:** Click **Reset Token** and copy the revealed token. **This is a secret, do not share it.**
-4.  **Enable Intents:** On the "Bot" page, enable the **`MESSAGE CONTENT INTENT`** and **`SERVER MEMBERS INTENT`**.
-5.  **Invite the Bot:** Go to the **OAuth2 -> URL Generator** tab. Select the `bot` scope, then grant `Send Messages` and `Read Message History` permissions. Copy the generated URL and paste it into your browser to invite the bot to your server.
-6.  **Enable DMs:** For the `!remindme` feature to work, users must **"Allow direct messages from server members"** in your server's privacy settings.
-
-#### b) Build from Source
-
-First, clone the repository:
+#### 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/aramova/domain_finder.git
 cd domain_finder
 ```
 
-Next, create your configuration file. The bot looks for a `config.json` file in its working directory.
+#### 2. Configure the Bot
+Create a `config.json` file in the project root. You can use the example as a template:
+
 ```bash
 cp config.example.json config.json
 ```
-Now, edit `config.json` and add your Discord Bot Token and the ID of the channel you want alerts in.
 
-Finally, build the binary.
-```bash
-go build
+Edit `config.json` to add your credentials:
+```json
+{
+  "discord_bot_token": "YOUR_BOT_TOKEN_HERE",
+  "discord_channel_id": "YOUR_CHANNEL_ID_HERE",
+  "check_interval_minutes": 60
+}
 ```
 
-**Note on Go versions:**
-If you encounter build errors related to the `go.mod` file, running `go mod tidy` will often resolve them by synchronizing the project's dependencies with your installed Go version.
+> **How to get a Token:**
+> 1. Go to the [Discord Developer Portal](https://discord.com/developers/applications).
+> 2. Create a New Application -> **Bot** -> **Add Bot**.
+> 3. **Reset Token** to get your secret token.
+> 4. Enable **Message Content Intent** and **Server Members Intent**.
+> 5. Use the **OAuth2 URL Generator** (scope: `bot`, permissions: `Send Messages`, `Read Message History`, `Add Reactions`) to invite the bot to your server.
 
-### 3. Running the Bot
+#### 3. Build & Run (Development)
+```bash
+go build -o domain_finder
+./domain_finder
+```
 
-The recommended way to run the bot in a production environment is with the provided installer script.
+### 📦 Production Deployment (Linux)
 
-#### Production (Systemd Service)
+For a permanent installation, use the provided installer script. This sets up the bot as a systemd service running under a restricted user.
 
-The `install_service.sh` script automates the process of setting up the bot to run as a secure `systemd` service.
-
-1.  **Build the Executable:** Follow the build steps above.
-2.  **Run the Installer:**
+1.  **Build the binary:**
+    ```bash
+    go build -o domain_finder
+    ```
+2.  **Run the Installer (as root):**
     ```bash
     sudo ./install_service.sh
     ```
-    The installer will:
-    -   Create a non-privileged system user `domain_finder`.
-    -   Copy the binary to `/usr/local/bin`.
-    -   Create the configuration directory `/etc/domain_finder` and copy your `config.json` into it.
-    -   Set secure permissions for all files.
-    -   Install and enable the `domain_finder.service` unit file.
-3.  **Start the Service:**
+    *   Creates a system user `domain_finder`.
+    *   Installs binary to `/usr/local/bin/domain_finder`.
+    *   Configs go to `/etc/domain_finder/`.
+    *   Database goes to `/var/lib/domain_finder/`.
+    *   Enables the `domain_finder` systemd service.
+
+3.  **Manage the Service:**
     ```bash
     sudo systemctl start domain_finder
+    sudo systemctl status domain_finder
+    sudo journalctl -u domain_finder -f
     ```
 
-#### Development
+## 🤖 Commands
 
-For development, you can run the bot directly from the project directory after building it.
-```bash
-./domain_finder
-```
-The bot will use the `config.json` and `domains.db` files in the current directory.
+| Command | Description | Example |
+| :--- | :--- | :--- |
+| `!help` | Show this help message. | `!help` |
+| `!lookup <domain>` | Perform an immediate WHOIS lookup. | `!lookup google.com` |
+| `!add <domain>` | Add a domain to the monitoring list. | `!add github.com` |
+| `!remove <domain>` | Stop monitoring a domain. | `!remove github.com` |
+| `!list` | Show all currently monitored domains. | `!list` |
+| `!stats <domain> [n]` | View historical WHOIS data (n=1 is latest). | `!stats google.com 2` |
+| `!remindme [domain]` | Set a personal DM reminder for a domain. | `!remindme google.com` |
+| `!testremindme <domain>` | Test the DM reminder flow. | `!testremindme google.com` |
 
-## Bot Commands
+## 🛠️ Architecture
 
--   `!help`: Shows a help message.
--   `!lookup <domain>`: Performs an on-demand WHOIS lookup.
--   `!add <domain>`: Adds a domain to the monitoring list.
--   `!remove <domain>`: Removes a domain from the monitoring list.
--   `!list`: Lists all monitored domains.
--   `!stats <domain> [n]`: Shows historical WHOIS data. `n` is the optional history offset (1 = latest).
--   `!remindme [domain]`: Manages personal DM reminders.
--   `!testremindme <domain>`: Tests the DM reminder functionality.
+*   **`main.go`**: Entry point, config loading, and service orchestration.
+*   **`scheduler.go`**: The heartbeat. Manages the ticker and triggers domain checks.
+*   **`database.go`**: SQLite interactions (schema, CRUD operations).
+*   **`discord.go`**: Discord API wrapper and event handlers.
+*   **`whois.go`**: WHOIS parsing and comparison logic.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please check out the `CONTRIBUTING.md` (coming soon) or open an issue.
+
+## 📄 License
+
+This project is licensed under the MIT License.
