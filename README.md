@@ -1,7 +1,6 @@
 # Domain Finder
 
 ![Go Version](https://img.shields.io/badge/Go-1.19%2B-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 
 **Domain Finder** is a robust, production-ready Discord bot written in Go. It autonomously monitors domain names for critical changes (WHOIS data) and upcoming expirations, alerting you directly in your Discord server. It features a persistent SQLite database, interactive commands, and a secure systemd service installer.
@@ -114,6 +113,3 @@ For a permanent installation, use the provided installer script. This sets up th
 
 Contributions are welcome! Please check out the `CONTRIBUTING.md` (coming soon) or open an issue.
 
-## 📄 License
-
-This project is licensed under the MIT License.
